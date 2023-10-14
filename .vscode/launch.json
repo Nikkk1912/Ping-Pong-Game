@@ -1,0 +1,33 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++ Launch",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/pong/build/game.exe",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}/pong",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",  // Use "gdb" on Linux or Windows
+      "setupCommands": [
+          {
+              "description": "Enable pretty-printing for gdb",
+              "text": "-enable-pretty-printing",
+              "ignoreFailures": true
+          }
+      ],
+      "preLaunchTask": "Build with Makefile",  // Use the label of your build task
+      "miDebuggerPath": "gdb",  // Use "gdb" on Linux or Windows
+      "logging": {
+          "moduleLoad": false,
+          "trace": true,
+          "engineLogging": true,
+          "programOutput": true,
+          "exceptions": true
+      }
+    }
+  ]
+}

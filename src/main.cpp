@@ -30,6 +30,34 @@ Vector2 Substract(Vector2& first,const Vector2& second)
     return first;
 }
 
+Vector2 InvertDirection(Vector2 currentDirection)
+{
+    Vector2 newDirection;
+    if(currentDirection.x == 1)
+    {
+        newDirection.x = -1;
+    } else if (currentDirection.x == -1)
+    {
+        newDirection.x = 1;
+    } else 
+    {
+        currentDirection.x =0;
+    }
+
+    if(currentDirection.y == 1)
+    {
+        newDirection.y = -1;
+    } else if (currentDirection.y == -1)
+    {
+        newDirection.y = 1;
+    } else 
+    {
+        currentDirection.y =0;
+    }
+
+    return newDirection;
+    
+}
 
 class Ball{
     private:
@@ -40,9 +68,9 @@ class Ball{
         
 
 
-        void Draw()
+        void Draw() 
         {
-            for(auto i = 0; i <body.size();i++)
+            for(auto i = 0; i < (int)body.size();i++)
             {
                float x = body[i].x;
                float y = body[i].y;
@@ -53,7 +81,7 @@ class Ball{
 
         void Update()
         {
-            for(auto i = 0; i < body.size();i++)
+            for(auto i = 0; i < (int)body.size();i++)
             {
                 body[i] = Substract(body[i], direction);
             }
@@ -63,6 +91,21 @@ class Ball{
         {
             body = {Vector2{16,16}, Vector2{15,15}, Vector2{15,16}, Vector2{16,15}};
 
+        }
+
+        deque<Vector2> BodyCords()
+        {
+            return body;
+        }
+
+        Vector2 GiveDirection()
+        {
+            return direction;
+        }
+
+        void ChangeDirection(Vector2 newDirection)
+        {
+            direction = newDirection;
         }
 
 };
@@ -82,9 +125,32 @@ class Game{
         void Update()
         {
             ball.Update();
+            CheckCollisionWithEdgeLeft();
+        }
+
+        void CheckCollisionWithEdgeLeft()
+        {
+            deque<Vector2> ballBody = ball.BodyCords();
+
+            for(auto i = 0; i < (int)ballBody.size(); i++)
+            {
+                if (ballBody[i].x == -1)
+                {
+                    ball.ChangeDirection(InvertDirection(ball.GiveDirection()));
+                }
+            }
         }
 
 };
+
+class Panel{
+    private:
+
+
+    public:
+
+};
+
 
 int main() {
     InitWindow(2*offset + cellSize * cellCount, 2*offset + cellSize * cellCount, "Pong");
