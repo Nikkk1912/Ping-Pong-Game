@@ -132,9 +132,9 @@ class Game{
         {
             deque<Vector2> ballBody = ball.BodyCords();
 
-            for(auto i = 0; i < (int)ballBody.size(); i++)
+            for(auto i = 0; i < (int)ball.BodyCords().size(); i++)
             {
-                if (ballBody[i].x == -1)
+                if (ball.BodyCords()[i].x == -1)
                 {
                     ball.ChangeDirection(InvertDirection(ball.GiveDirection()));
                 }
