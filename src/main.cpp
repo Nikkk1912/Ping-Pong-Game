@@ -162,25 +162,131 @@ public:
     }
 };
 
+class Panel
+{
+private:
+    deque<Vector2> panelBody = {{(float)(cellCount + 1), 13}, {(float)(cellCount + 1), 14}, {(float)(cellCount + 1), 15}, {(float)(cellCount + 1), 16}, {(float)(cellCount + 1), 17}, {(float)(cellCount + 1), 18}};
+
+    //
+    // {cellCount, 13}
+    // {cellCount, 14}
+    // {cellCount, 15}
+    // {cellCount, 16}
+    // {cellCount, 17}
+    // {cellCount, 18}
+    //
+
+    int panelDirectionY = 0;
+
+public:
+    void Draw()
+    {
+        for (auto i = 0; i < (int)panelBody.size(); i++)
+        {
+            float x = panelBody[i].x;
+            float y = panelBody[i].y;
+            Rectangle segment = Rectangle{offset + x * cellSize, offset + y * cellSize, (float)cellSize, (float)cellSize};
+            DrawRectangleRounded(segment, 0.5, 6, BLACK);
+        }
+    }
+
+    void Update()
+    {
+        for (auto i = 0; i < (int)panelBody.size(); i++)
+        {
+            Vector2 Paneldirection;
+            cout << panelDirectionY << endl;
+
+            if (panelBody[5].y == 2)
+            {
+                if (panelDirectionY == 1)
+                {
+                    Paneldirection = {0, 0};
+                }
+                else
+                {
+                    Paneldirection = {0, (float)panelDirectionY};
+                }
+
+                panelBody[i] = Substract(panelBody[i], Paneldirection);
+                
+            }
+            else if (panelBody[5].y == cellCount + 2)
+            {
+                if (panelDirectionY == -1)
+                {
+                    Paneldirection = {0, 0};
+                }
+                else
+                {
+                    Paneldirection = {0, (float)panelDirectionY};
+                }
+
+                panelBody[i] = Substract(panelBody[i], Paneldirection);
+                
+            }
+            else
+            {
+                Vector2 Paneldirection = {0, (float)panelDirectionY};
+                panelBody[i] = Substract(panelBody[i], Paneldirection);
+                // cout<<panelBody[0].x << " " << panelBody[0].y<<endl;
+            }
+        }
+    }
+
+    void Reset()
+    {
+        panelBody = {Vector2{15, 15}, Vector2{16, 15}, Vector2{15, 16}, Vector2{16, 16}};
+    }
+
+    deque<Vector2> BodyCords()
+    {
+        return panelBody;
+    }
+
+    int GiveDirection()
+    {
+        return panelDirectionY;
+    }
+
+    void ChangeDirection(int newDirection)
+    {
+        panelDirectionY = newDirection;
+    }
+};
+
 class Game
 {
 private:
     Ball ball = Ball();
+    Panel panel = Panel();
 
 public:
     void Draw()
     {
         ball.Draw();
+        panel.Draw();
     }
 
     void Update()
     {
-        //cout << ball.GiveDirection().x << " " << ball.GiveDirection().y << endl;
+        // cout << ball.GiveDirection().x << " " << ball.GiveDirection().y << endl;
         ball.Update();
+        panel.Update();
         CheckCollisionWithEdgeLeft();
         CheckCollisionWithEdgeRight();
         CheckCollisionWithEdgeUp();
         CheckCollisionWithEdgeDown();
+    }
+
+    int PanelGetDirection()
+    {
+        return panel.GiveDirection();
+    }
+
+    void PanelChangeDirection(int dir)
+    {
+        panel.ChangeDirection(dir);
     }
 
     void CheckCollisionWithEdgeLeft()
@@ -190,41 +296,42 @@ public:
         {
 
             if (ball.GiveDirection().y == 1)
-                    {
-                        Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x) , 1};
-                        ball.ChangeDirection(newDirection);
-                    } else 
-                    {
-                        Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x) , -1};
-                        ball.ChangeDirection(newDirection);
-                    }
+            {
+                Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x), 1};
+                ball.ChangeDirection(newDirection);
+            }
+            else
+            {
+                Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x), -1};
+                ball.ChangeDirection(newDirection);
+            }
 
             // cout<<"Left";
             // cout << ball.GiveDirection().x << " " <<ball.GiveDirection().y << endl;
-            //ball.ChangeDirection(InvertDirection(ball.GiveDirection()));
+            // ball.ChangeDirection(InvertDirection(ball.GiveDirection()));
             // cout <<InvertDirection(ball.GiveDirection()).x << " " << InvertDirection(ball.GiveDirection()).y <<endl;
         }
     }
 
     void CheckCollisionWithEdgeRight()
     {
-        
 
         if (ball.BodyCords()[1].x == cellCount + 2)
         {
 
             if (ball.GiveDirection().y == 1)
-                    {
-                        Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x) , 1};
-                        ball.ChangeDirection(newDirection);
-                    } else 
-                    {
-                        Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x) , -1};
-                        ball.ChangeDirection(newDirection);
-                    }
+            {
+                Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x), 1};
+                ball.ChangeDirection(newDirection);
+            }
+            else
+            {
+                Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x), -1};
+                ball.ChangeDirection(newDirection);
+            }
 
             // cout << ball.GiveDirection().x << " " <<ball.GiveDirection().y << endl;
-            //ball.ChangeDirection(InvertDirection(ball.GiveDirection()));
+            // ball.ChangeDirection(InvertDirection(ball.GiveDirection()));
             // cout <<InvertDirection(ball.GiveDirection()).x << " " << InvertDirection(ball.GiveDirection()).y <<endl;
         }
     }
@@ -272,12 +379,6 @@ public:
     }
 };
 
-class Panel
-{
-private:
-public:
-};
-
 int main()
 {
     InitWindow(2 * offset + cellSize * cellCount, 2 * offset + cellSize * cellCount, "Pong");
@@ -292,6 +393,15 @@ int main()
         if (EventTrigger(0.15))
         {
             game.Update();
+        }
+
+        if (IsKeyPressed(KEY_W))
+        {
+            game.PanelChangeDirection(1);
+        }
+        if (IsKeyPressed(KEY_S))
+        {
+            game.PanelChangeDirection(-1);
         }
 
         ClearBackground(light_green);
