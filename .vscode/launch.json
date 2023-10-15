@@ -11,23 +11,42 @@
       "cwd": "${workspaceFolder}/pong",
       "environment": [],
       "externalConsole": false,
-      "MIMode": "gdb",  // Use "gdb" on Linux or Windows
+      "MIMode": "gdb",
       "setupCommands": [
-          {
-              "description": "Enable pretty-printing for gdb",
-              "text": "-enable-pretty-printing",
-              "ignoreFailures": true
-          }
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
       ],
-      "preLaunchTask": "Build with Makefile",  // Use the label of your build task
-      "miDebuggerPath": "gdb",  // Use "gdb" on Linux or Windows
+      "preLaunchTask": "Build with Makefile",
+      "miDebuggerPath": "gdb",
       "logging": {
-          "moduleLoad": false,
-          "trace": true,
-          "engineLogging": true,
-          "programOutput": true,
-          "exceptions": true
+        "moduleLoad": false,
+        "trace": true,
+        "engineLogging": true,
+        "programOutput": true,
+        "exceptions": true
       }
+    },
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "cppdbg",
+      "request": "launch",
+      "args": [],
+      "stopAtEntry": false,
+      "externalConsole": true,
+      "cwd": "d:/project/game/pong/pong/src",
+      "program": "d:/project/game/pong/pong/src/build/Debug/outDebug",
+      "MIMode": "gdb",
+      "miDebuggerPath": "C:/msys64/ucrt64/bin/gdb.exe",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
     }
   ]
 }
