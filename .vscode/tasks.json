@@ -4,7 +4,7 @@
         {
             "label": "Build with Makefile",
             "type": "shell",
-            "command": "mingw32-make",
+            "command": "make",
             "args": [
                 "-f",
                 "build/makefile"
