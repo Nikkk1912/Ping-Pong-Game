@@ -1,5 +1,5 @@
-#include <iostream>
 #include <deque>
+#include <iostream>
 #include <random>
 #include <raylib.h>
 
@@ -12,24 +12,21 @@ double lastUpdateTime = 0;
 
 Color light_green = {160, 212, 171, 255};
 
-bool EventTrigger(double interval)
-{
-    double currentTime = GetTime();
-    if (currentTime - lastUpdateTime >= interval)
-    {
-        lastUpdateTime = currentTime;
-        return true;
-    }
-    return false;
+bool EventTrigger(double interval) {
+  double currentTime = GetTime();
+  if (currentTime - lastUpdateTime >= interval) {
+    lastUpdateTime = currentTime;
+    return true;
+  }
+  return false;
 }
 
-Vector2 Substract(Vector2 &first, const Vector2 &second)
-{
-    // cout << first.x << " " <<first.y << endl;
-    first.x -= second.x;
-    first.y -= second.y;
-    // cout << first.x << " " <<first.y << endl <<endl;
-    return first;
+Vector2 Substract(Vector2 &first, const Vector2 &second) {
+  // cout << first.x << " " <<first.y << endl;
+  first.x -= second.x;
+  first.y -= second.y;
+//cout << first.x << " " <<first.y << endl <<endl;
+  return first;
 }
 
 /*Vector2 InvertDirection(Vector2 currentDirection)
@@ -69,348 +66,277 @@ Vector2 Substract(Vector2 &first, const Vector2 &second)
 }
 */
 
-int InvertX(int currentX)
-{
-    int newX = 0;
+int InvertX(int currentX) {
+  int newX = 0;
 
-    if (currentX == 1)
-    {
-        newX = -1;
-    }
-    else if (currentX == -1)
-    {
-        newX = 1;
-    }
-    else
-    {
-        currentX = 0;
-    }
-    return newX;
+  if (currentX == 1) {
+    newX = -1;
+  } else if (currentX == -1) {
+    newX = 1;
+  } else {
+    currentX = 0;
+  }
+  return newX;
 }
 
-int InvertY(int currentY)
-{
-    int newY = 0;
+int InvertY(int currentY) {
+  int newY = 0;
 
-    if (currentY == 1)
-    {
-        newY = -1;
-    }
-    else if (currentY == -1)
-    {
-        newY = 1;
-    }
-    else
-    {
-        random_device rd;
-        mt19937 gen(rd());
-        uniform_int_distribution<int> distribution(0, 1);
-        currentY = distribution(gen) == 0 ? 1 : -1;
-    }
-    // cout << newDirection.x << " " << newDirection.y << endl;
-    return newY;
+  if (currentY == 1) {
+    newY = -1;
+  } else if (currentY == -1) {
+    newY = 1;
+  } else {
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<int> distribution(0, 1);
+    currentY = distribution(gen) == 0 ? 1 : -1;
+  }
+  // cout << newDirection.x << " " << newDirection.y << endl;
+  return newY;
 }
 
-class Ball
-{
+class Ball {
 private:
-    deque<Vector2> body = {Vector2{15, 15}, Vector2{16, 15}, Vector2{15, 16}, Vector2{16, 16}};
-    //
-    //  {15,15} {16,15}
-    //  {15,16} {16,16}
-    //
-    Vector2 direction = {1, 0};
+  deque<Vector2> body = {Vector2{15, 15}, Vector2{16, 15}, Vector2{15, 16},
+                         Vector2{16, 16}};
+  //
+  //  {15,15} {16,15}
+  //  {15,16} {16,16}
+  //
+  Vector2 direction = {1, 0};
 
 public:
-    void Draw()
-    {
-        for (auto i = 0; i < (int)body.size(); i++)
-        {
-            float x = body[i].x;
-            float y = body[i].y;
-            Rectangle segment = Rectangle{offset + x * cellSize, offset + y * cellSize, (float)cellSize, (float)cellSize};
-            DrawRectangleRounded(segment, 0.5, 6, BLACK);
-        }
+  void Draw() {
+    for (auto i = 0; i < (int)body.size(); i++) {
+      float x = body[i].x;
+      float y = body[i].y;
+      Rectangle segment =
+          Rectangle{offset + x * cellSize, offset + y * cellSize,
+                    (float)cellSize, (float)cellSize};
+      DrawRectangleRounded(segment, 0.5, 6, BLACK);
     }
+  }
 
-    void Update()
-    {
-        for (auto i = 0; i < (int)body.size(); i++)
-        {
-            body[i] = Substract(body[i], direction);
-        }
+  void Update() {
+    for (auto i = 0; i < (int)body.size(); i++) {
+      body[i] = Substract(body[i], direction);
     }
+  }
 
-    void Reset()
-    {
-        body = {Vector2{15, 15}, Vector2{16, 15}, Vector2{15, 16}, Vector2{16, 16}};
-    }
+  void Reset() {
+    body = {Vector2{15, 15}, Vector2{16, 15}, Vector2{15, 16}, Vector2{16, 16}};
+  }
 
-    deque<Vector2> BodyCords()
-    {
-        return body;
-    }
+  deque<Vector2> BodyCords() { return body; }
 
-    Vector2 GiveDirection()
-    {
-        return direction;
-    }
+  Vector2 GiveDirection() { return direction; }
 
-    void ChangeDirection(Vector2 newDirection)
-    {
-        direction = newDirection;
-    }
+  void ChangeDirection(Vector2 newDirection) { direction = newDirection; }
 };
 
-class Panel
-{
+class Panel {
 private:
-    deque<Vector2> panelBody = {{(float)(cellCount + 1), 13}, {(float)(cellCount + 1), 14}, {(float)(cellCount + 1), 15}, {(float)(cellCount + 1), 16}, {(float)(cellCount + 1), 17}, {(float)(cellCount + 1), 18}};
+  deque<Vector2> panelBody = {
+      {(float)(cellCount + 1), 13}, {(float)(cellCount + 1), 14},
+      {(float)(cellCount + 1), 15}, {(float)(cellCount + 1), 16},
+      {(float)(cellCount + 1), 17}, {(float)(cellCount + 1), 18}};
 
-    //
-    // {cellCount, 13}
-    // {cellCount, 14}
-    // {cellCount, 15}
-    // {cellCount, 16}
-    // {cellCount, 17}
-    // {cellCount, 18}
-    //
+  //
+  // {cellCount, 13}
+  // {cellCount, 14}
+  // {cellCount, 15}
+  // {cellCount, 16}
+  // {cellCount, 17}
+  // {cellCount, 18}
+  //
 
-    int panelDirectionY = 0;
+  int panelDirectionY = 0;
 
 public:
-    void Draw()
-    {
-        for (auto i = 0; i < (int)panelBody.size(); i++)
-        {
-            float x = panelBody[i].x;
-            float y = panelBody[i].y;
-            Rectangle segment = Rectangle{offset + x * cellSize, offset + y * cellSize, (float)cellSize, (float)cellSize};
-            DrawRectangleRounded(segment, 0.5, 6, BLACK);
+  void Draw() {
+    for (auto i = 0; i < (int)panelBody.size(); i++) {
+      float x = panelBody[i].x;
+      float y = panelBody[i].y;
+      Rectangle segment =
+          Rectangle{offset + x * cellSize, offset + y * cellSize,
+                    (float)cellSize, (float)cellSize};
+      DrawRectangleRounded(segment, 0.5, 6, BLACK);
+    }
+  }
+
+  void Update() {
+    for (auto i = 0; i < (int)panelBody.size(); i++) {
+      Vector2 Paneldirection;
+      cout << panelDirectionY << endl;
+
+      if (panelBody[5].y == 2) {
+        if (panelDirectionY == 1) {
+          Paneldirection = {0, 0};
+        } else {
+          Paneldirection = {0, (float)panelDirectionY};
         }
-    }
 
-    void Update()
-    {
-        for (auto i = 0; i < (int)panelBody.size(); i++)
-        {
-            Vector2 Paneldirection;
-            cout << panelDirectionY << endl;
+        panelBody[i] = Substract(panelBody[i], Paneldirection);
 
-            if (panelBody[5].y == 2)
-            {
-                if (panelDirectionY == 1)
-                {
-                    Paneldirection = {0, 0};
-                }
-                else
-                {
-                    Paneldirection = {0, (float)panelDirectionY};
-                }
-
-                panelBody[i] = Substract(panelBody[i], Paneldirection);
-                
-            }
-            else if (panelBody[5].y == cellCount + 2)
-            {
-                if (panelDirectionY == -1)
-                {
-                    Paneldirection = {0, 0};
-                }
-                else
-                {
-                    Paneldirection = {0, (float)panelDirectionY};
-                }
-
-                panelBody[i] = Substract(panelBody[i], Paneldirection);
-                
-            }
-            else
-            {
-                Vector2 Paneldirection = {0, (float)panelDirectionY};
-                panelBody[i] = Substract(panelBody[i], Paneldirection);
-                // cout<<panelBody[0].x << " " << panelBody[0].y<<endl;
-            }
+      } else if (panelBody[5].y == cellCount + 2) {
+        if (panelDirectionY == -1) {
+          Paneldirection = {0, 0};
+        } else {
+          Paneldirection = {0, (float)panelDirectionY};
         }
-    }
 
-    void Reset()
-    {
-        panelBody = {Vector2{15, 15}, Vector2{16, 15}, Vector2{15, 16}, Vector2{16, 16}};
-    }
+        panelBody[i] = Substract(panelBody[i], Paneldirection);
 
-    deque<Vector2> BodyCords()
-    {
-        return panelBody;
+      } else {
+        Vector2 Paneldirection = {0, (float)panelDirectionY};
+        panelBody[i] = Substract(panelBody[i], Paneldirection);
+        // cout<<panelBody[0].x << " " << panelBody[0].y<<endl;
+      }
     }
+  }
 
-    int GiveDirection()
-    {
-        return panelDirectionY;
-    }
+  void Reset() {
+    panelBody = {Vector2{15, 15}, Vector2{16, 15}, Vector2{15, 16},
+                 Vector2{16, 16}};
+  }
 
-    void ChangeDirection(int newDirection)
-    {
-        panelDirectionY = newDirection;
-    }
+  deque<Vector2> BodyCords() { return panelBody; }
+
+  int GiveDirection() { return panelDirectionY; }
+
+  void ChangeDirection(int newDirection) { panelDirectionY = newDirection; }
 };
 
-class Game
-{
+class Game {
 private:
-    Ball ball = Ball();
-    Panel panel = Panel();
+  Ball ball = Ball();
+  Panel panel = Panel();
 
 public:
-    void Draw()
-    {
-        ball.Draw();
-        panel.Draw();
+  void Draw() {
+    ball.Draw();
+    panel.Draw();
+  }
+
+  void Update() {
+    // cout << ball.GiveDirection().x << " " << ball.GiveDirection().y << endl;
+    ball.Update();
+    panel.Update();
+    CheckCollisionWithEdgeLeft();
+    CheckCollisionWithEdgeRight();
+    CheckCollisionWithEdgeUp();
+    CheckCollisionWithEdgeDown();
+  }
+
+  int PanelGetDirection() { return panel.GiveDirection(); }
+
+  void PanelChangeDirection(int dir) { panel.ChangeDirection(dir); }
+
+  void CheckCollisionWithEdgeLeft() {
+
+    if (ball.BodyCords()[0].x == -3) {
+
+      if (ball.GiveDirection().y == 1) {
+        Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x), 1};
+        ball.ChangeDirection(newDirection);
+      } else {
+        Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x), -1};
+        ball.ChangeDirection(newDirection);
+      }
+
+      // cout<<"Left";
+      // cout << ball.GiveDirection().x << " " <<ball.GiveDirection().y << endl;
+      // ball.ChangeDirection(InvertDirection(ball.GiveDirection()));
+      // cout <<InvertDirection(ball.GiveDirection()).x << " " <<
+      // InvertDirection(ball.GiveDirection()).y <<endl;
     }
+  }
 
-    void Update()
-    {
-        // cout << ball.GiveDirection().x << " " << ball.GiveDirection().y << endl;
-        ball.Update();
-        panel.Update();
-        CheckCollisionWithEdgeLeft();
-        CheckCollisionWithEdgeRight();
-        CheckCollisionWithEdgeUp();
-        CheckCollisionWithEdgeDown();
+  void CheckCollisionWithEdgeRight() {
+
+    if (ball.BodyCords()[1].x == cellCount + 2) {
+
+      if (ball.GiveDirection().y == 1) {
+        Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x), 1};
+        ball.ChangeDirection(newDirection);
+      } else {
+        Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x), -1};
+        ball.ChangeDirection(newDirection);
+      }
+
+      // cout << ball.GiveDirection().x << " " <<ball.GiveDirection().y << endl;
+      // ball.ChangeDirection(InvertDirection(ball.GiveDirection()));
+      // cout <<InvertDirection(ball.GiveDirection()).x << " " <<
+      // InvertDirection(ball.GiveDirection()).y <<endl;
     }
+  }
 
-    int PanelGetDirection()
-    {
-        return panel.GiveDirection();
+  void CheckCollisionWithEdgeUp() {
+
+    if (ball.BodyCords()[0].y == -3 && ball.BodyCords()[0].x != -3 &&
+        ball.BodyCords()[1].x != cellCount + 2) {
+      if (ball.GiveDirection().x == 1) {
+        Vector2 newDirection = {1, (float)InvertY(ball.GiveDirection().y)};
+        ball.ChangeDirection(newDirection);
+      } else {
+        Vector2 newDirection = {-1, (float)InvertY(ball.GiveDirection().y)};
+        ball.ChangeDirection(newDirection);
+      }
+      // ball.ChangeDirection(InvertDirection(ball.GiveDirection()));
+      // cout <<InvertDirection(ball.GiveDirection()).x << " " <<
+      // InvertDirection(ball.GiveDirection()).y <<endl;
     }
+  }
 
-    void PanelChangeDirection(int dir)
-    {
-        panel.ChangeDirection(dir);
+  void CheckCollisionWithEdgeDown() {
+
+    if (ball.BodyCords()[3].y == cellCount + 2 && ball.BodyCords()[0].x != -3 &&
+        ball.BodyCords()[1].x != cellCount + 2) {
+      if (ball.GiveDirection().x == 1) {
+        Vector2 newDirection = {1, (float)InvertY(ball.GiveDirection().y)};
+        ball.ChangeDirection(newDirection);
+      } else {
+        Vector2 newDirection = {-1, (float)InvertY(ball.GiveDirection().y)};
+        ball.ChangeDirection(newDirection);
+      }
+
+      // cout << ball.GiveDirection().x << " " <<ball.GiveDirection().y << endl;
+      // ball.ChangeDirection(InvertDirection(ball.GiveDirection()));
+      // cout <<InvertDirection(ball.GiveDirection()).x << " " <<
+      // InvertDirection(ball.GiveDirection()).y <<endl;
     }
-
-    void CheckCollisionWithEdgeLeft()
-    {
-
-        if (ball.BodyCords()[0].x == -3)
-        {
-
-            if (ball.GiveDirection().y == 1)
-            {
-                Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x), 1};
-                ball.ChangeDirection(newDirection);
-            }
-            else
-            {
-                Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x), -1};
-                ball.ChangeDirection(newDirection);
-            }
-
-            // cout<<"Left";
-            // cout << ball.GiveDirection().x << " " <<ball.GiveDirection().y << endl;
-            // ball.ChangeDirection(InvertDirection(ball.GiveDirection()));
-            // cout <<InvertDirection(ball.GiveDirection()).x << " " << InvertDirection(ball.GiveDirection()).y <<endl;
-        }
-    }
-
-    void CheckCollisionWithEdgeRight()
-    {
-
-        if (ball.BodyCords()[1].x == cellCount + 2)
-        {
-
-            if (ball.GiveDirection().y == 1)
-            {
-                Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x), 1};
-                ball.ChangeDirection(newDirection);
-            }
-            else
-            {
-                Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x), -1};
-                ball.ChangeDirection(newDirection);
-            }
-
-            // cout << ball.GiveDirection().x << " " <<ball.GiveDirection().y << endl;
-            // ball.ChangeDirection(InvertDirection(ball.GiveDirection()));
-            // cout <<InvertDirection(ball.GiveDirection()).x << " " << InvertDirection(ball.GiveDirection()).y <<endl;
-        }
-    }
-
-    void CheckCollisionWithEdgeUp()
-    {
-
-        if (ball.BodyCords()[0].y == -3 && ball.BodyCords()[0].x != -3 && ball.BodyCords()[1].x != cellCount + 2)
-        {
-            if (ball.GiveDirection().x == 1)
-            {
-                Vector2 newDirection = {1, (float)InvertY(ball.GiveDirection().y)};
-                ball.ChangeDirection(newDirection);
-            }
-            else
-            {
-                Vector2 newDirection = {-1, (float)InvertY(ball.GiveDirection().y)};
-                ball.ChangeDirection(newDirection);
-            }
-            // ball.ChangeDirection(InvertDirection(ball.GiveDirection()));
-            // cout <<InvertDirection(ball.GiveDirection()).x << " " << InvertDirection(ball.GiveDirection()).y <<endl;
-        }
-    }
-
-    void CheckCollisionWithEdgeDown()
-    {
-
-        if (ball.BodyCords()[3].y == cellCount + 2 && ball.BodyCords()[0].x != -3 && ball.BodyCords()[1].x != cellCount + 2)
-        {
-            if (ball.GiveDirection().x == 1)
-            {
-                Vector2 newDirection = {1, (float)InvertY(ball.GiveDirection().y)};
-                ball.ChangeDirection(newDirection);
-            }
-            else
-            {
-                Vector2 newDirection = {-1, (float)InvertY(ball.GiveDirection().y)};
-                ball.ChangeDirection(newDirection);
-            }
-
-            // cout << ball.GiveDirection().x << " " <<ball.GiveDirection().y << endl;
-            // ball.ChangeDirection(InvertDirection(ball.GiveDirection()));
-            // cout <<InvertDirection(ball.GiveDirection()).x << " " << InvertDirection(ball.GiveDirection()).y <<endl;
-        }
-    }
+  }
 };
 
-int main()
-{
-    InitWindow(2 * offset + cellSize * cellCount, 2 * offset + cellSize * cellCount, "Pong");
-    SetTargetFPS(60);
+int main() {
+  InitWindow(2 * offset + cellSize * cellCount,
+             2 * offset + cellSize * cellCount, "Pong");
+  SetTargetFPS(60);
 
-    Game game = Game();
+  Game game = Game();
 
-    while (!WindowShouldClose())
-    {
-        BeginDrawing();
+  while (!WindowShouldClose()) {
+    BeginDrawing();
 
-        if (EventTrigger(0.15))
-        {
-            game.Update();
-        }
-
-        if (IsKeyPressed(KEY_W))
-        {
-            game.PanelChangeDirection(1);
-        }
-        if (IsKeyPressed(KEY_S))
-        {
-            game.PanelChangeDirection(-1);
-        }
-
-        ClearBackground(light_green);
-
-        game.Draw();
-
-        EndDrawing();
+    if (EventTrigger(0.07)) {
+      game.Update();
     }
 
-    CloseWindow();
-    return 0;
+    if (IsKeyPressed(KEY_W)) {
+      game.PanelChangeDirection(1);
+    }
+    if (IsKeyPressed(KEY_S)) {
+      game.PanelChangeDirection(-1);
+    }
+
+    ClearBackground(light_green);
+
+    game.Draw();
+
+    EndDrawing();
+  }
+
+  CloseWindow();
+  return 0;
 }
