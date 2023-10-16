@@ -9,11 +9,12 @@ Color dark_blue = {31, 29, 52, 255};
 Color light_yellow = {248, 232, 199, 255};
 Color light_green = {160, 212, 171, 255};
 
-int cellCount = 32;
-int cellSize = 25;
-int offset = 75;
-double lastUpdateTime = 0;
+float cellSize = 25;
+Rectangle screen;
+Rectangle playArea;
 
+double lastUpdateTime = 0;
+/*
 bool EventTrigger(double interval) {
   double currentTime = GetTime();
   if (currentTime - lastUpdateTime >= interval) {
@@ -70,14 +71,7 @@ private:
 
 public:
   void Draw() {
-    for (auto i = 0; i < (int)body.size(); i++) {
-      float x = body[i].x;
-      float y = body[i].y;
-      Rectangle segment =
-          Rectangle{offset + x * cellSize, offset + y * cellSize,
-                    (float)cellSize, (float)cellSize};
-      DrawRectangleRounded(segment, 0.5, 6, light_yellow);
-    }
+
   }
 
   void Update() {
@@ -100,72 +94,44 @@ public:
 
 class Panel {
 private:
-  deque<Vector2> panelBody = {
-      {(float)(cellCount - 1), 13}, {(float)(cellCount - 1), 14}, {(float)(cellCount - 1), 15}, {(float)(cellCount - 1), 16}, {(float)(cellCount - 1), 17}, {(float)(cellCount - 1), 18}};
 
-  //
-  // {cellCount, 13}
-  // {cellCount, 14}
-  // {cellCount, 15}
-  // {cellCount, 16}
-  // {cellCount, 17}
-  // {cellCount, 18}
-  //
-
+  Rectangle panelBody = {0, 0, (float)cellCount, (float)(cellCount * 6)};
   int panelDirectionY = 0;
 
 public:
+
   void Draw() {
-    for (auto i = 0; i < (int)panelBody.size(); i++) {
-      float x = panelBody[i].x;
-      float y = panelBody[i].y;
-      Rectangle segment =
-          Rectangle{offset + x * cellSize, offset + y * cellSize,
-                    (float)cellSize, (float)cellSize};
-      DrawRectangleRounded(segment, 0.5, 6, light_yellow);
-    }
+    DrawRectangleRounded(panelBody, 0.5, 1, light_yellow);
   }
 
   void Update() {
-    for (auto i = 0; i < (int)panelBody.size(); i++) {
-      Vector2 Paneldirection;
-      // cout << panelDirectionY << endl;
+    cout << panelDirectionY << endl;
 
-      if (panelBody[5].y == 5) {
-        if (panelDirectionY == 1) {
-          Paneldirection = {0, 0};
-        } else {
-          Paneldirection = {0, (float)panelDirectionY};
-        }
-
-        panelBody[i] = Substract(panelBody[i], Paneldirection);
-
-      } else if (panelBody[5].y == cellCount) {
-        if (panelDirectionY == -1) {
-          Paneldirection = {0, 0};
-        } else {
-          Paneldirection = {0, (float)panelDirectionY};
-        }
-
-        panelBody[i] = Substract(panelBody[i], Paneldirection);
-
-      } else {
-        Vector2 Paneldirection = {0, (float)panelDirectionY};
-        panelBody[i] = Substract(panelBody[i], Paneldirection);
-      }
+    if(panelDirectionY == 1 && panelBody.y >= lowBorder) {
+      return;
     }
+    if(panelDirectionY == -1 && panelBody.y <= topBorder) {
+      return;
+    }
+    panelBody.y += (panelDirectionY*20);
+
   }
 
   void Reset() {
-    panelBody = {Vector2{15, 15}, Vector2{16, 15}, Vector2{15, 16},
-                 Vector2{16, 16}};
+    panelBody = {(float)(cellCount * (cellSize + 1)), (float)(cellCount / 2 * cellSize), (float)cellCount, (float)(cellCount * 6)};
   }
 
-  deque<Vector2> BodyCords() { return panelBody; }
+  Vector2 BodyCords() {
+    Vector2 cords;
+    cords.x = panelBody.x;
+    cords.y = panelBody.y;
+    return cords;
+  }
 
   int GiveDirection() { return panelDirectionY; }
 
   void ChangeDirection(int newDirection) { panelDirectionY = newDirection; }
+
 };
 
 class Game {
@@ -187,10 +153,10 @@ public:
     CheckCollisionWithEdgeRight();
     CheckCollisionWithEdgeUp();
     CheckCollisionWithEdgeDown();
-    CheckCollisionWithPanel();
+    // CheckCollisionWithPanel();
   }
 
-  int PanelGetDirection() { return panel.GiveDirection(); }
+  // int PanelGetDirection() { return panel.GiveDirection(); }
 
   void PanelChangeDirection(int dir) { panel.ChangeDirection(dir); }
 
@@ -279,43 +245,39 @@ public:
   }
 };
 
+*/
 int main() {
 
-  // SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-  InitWindow(2 * offset + cellSize * cellCount,
-             2 * offset + cellSize * cellCount, "Pong");
+ 
+  SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+  InitWindow(1000, 1000, "Pong");
   SetTargetFPS(60);
 
-  Game game = Game();
+  screen = {0, 0, (float)(GetScreenWidth() ), (float)(GetScreenHeight())};
+  playArea = {cellSize, cellSize, screen.width - (2 * cellSize), screen.height - (2 * cellSize)};
+  SetWindowSize(screen.height, screen.height);
+
+
+  // Game game = Game();
 
   while (!WindowShouldClose()) {
     BeginDrawing();
-
+    /*
     if (EventTrigger(0.05)) {
       game.Update();
     }
 
     if (IsKeyPressed(KEY_W)) {
-      game.PanelChangeDirection(1);
-    }
-    if (IsKeyPressed(KEY_S)) {
       game.PanelChangeDirection(-1);
     }
+    if (IsKeyPressed(KEY_S)) {
+      game.PanelChangeDirection(1);
+    }
 
-    // ClearBackground(light_green);
+    */
 
     ClearBackground(dark_blue);
-    DrawRectangleLinesEx(Rectangle{(float)offset - 5, (float)offset - 5, (float)cellSize * cellCount + 29, (float)cellSize * cellCount + 29}, 3, light_yellow);
-    DrawText("Pong", offset - 5, 20, 40, light_yellow);
-    DrawText(TextFormat("%i", game.GiveLoosePoints()), offset - 5, offset + cellSize * cellCount + 29, 40, light_yellow);
-    // DrawTexture(textureExample,
-    //  offset + 100, offset + cellSize*cellCount+15, WHITE);
-    // DrawText(" - food", offset + 130 , offset + cellSize*cellCount+15, 30, light_yellow);
-    //  DrawRectangle(offset + 320, offset + cellSize*cellCount+15, cellSize,
-    //  cellSize, light_yellow); DrawText(" - bonus food", offset + 350 , offset
-    //  + cellSize*cellCount+15, 30, light_yellow);
-
-    game.Draw();
+    
 
     EndDrawing();
   }
