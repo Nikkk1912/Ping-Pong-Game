@@ -5,12 +5,14 @@
 
 using namespace std;
 
+Color dark_blue = {31, 29, 52, 255};
+Color light_yellow = {248, 232, 199, 255};
+Color light_green = {160, 212, 171, 255};
+
 int cellCount = 32;
 int cellSize = 25;
 int offset = 75;
 double lastUpdateTime = 0;
-
-Color light_green = {160, 212, 171, 255};
 
 bool EventTrigger(double interval) {
   double currentTime = GetTime();
@@ -22,49 +24,10 @@ bool EventTrigger(double interval) {
 }
 
 Vector2 Substract(Vector2 &first, const Vector2 &second) {
-  // cout << first.x << " " <<first.y << endl;
   first.x -= second.x;
   first.y -= second.y;
-//cout << first.x << " " <<first.y << endl <<endl;
   return first;
 }
-
-/*Vector2 InvertDirection(Vector2 currentDirection)
-{
-    Vector2 newDirection;
-
-    if (currentDirection.x == 1)
-    {
-        newDirection.x = -1;
-    }
-    else if (currentDirection.x == -1)
-    {
-        newDirection.x = 1;
-    }
-    else
-    {
-        currentDirection.x = 0;
-    }
-
-    if (currentDirection.y == 1)
-    {
-        newDirection.y = -1;
-    }
-    else if (currentDirection.y == -1)
-    {
-        newDirection.y = 1;
-    }
-    else
-    {
-        random_device rd;
-        mt19937 gen(rd());
-        uniform_int_distribution<int> distribution(0, 1);
-        currentDirection.y = distribution(gen) == 0 ? 1 : -1;
-    }
-    // cout << newDirection.x << " " << newDirection.y << endl;
-    return newDirection;
-}
-*/
 
 int InvertX(int currentX) {
   int newX = 0;
@@ -92,7 +55,6 @@ int InvertY(int currentY) {
     uniform_int_distribution<int> distribution(0, 1);
     currentY = distribution(gen) == 0 ? 1 : -1;
   }
-  // cout << newDirection.x << " " << newDirection.y << endl;
   return newY;
 }
 
@@ -114,7 +76,7 @@ public:
       Rectangle segment =
           Rectangle{offset + x * cellSize, offset + y * cellSize,
                     (float)cellSize, (float)cellSize};
-      DrawRectangleRounded(segment, 0.5, 6, BLACK);
+      DrawRectangleRounded(segment, 0.5, 6, light_yellow);
     }
   }
 
@@ -126,6 +88,7 @@ public:
 
   void Reset() {
     body = {Vector2{15, 15}, Vector2{16, 15}, Vector2{15, 16}, Vector2{16, 16}};
+    direction = {1, 0};
   }
 
   deque<Vector2> BodyCords() { return body; }
@@ -161,14 +124,14 @@ public:
       Rectangle segment =
           Rectangle{offset + x * cellSize, offset + y * cellSize,
                     (float)cellSize, (float)cellSize};
-      DrawRectangleRounded(segment, 0.5, 6, BLACK);
+      DrawRectangleRounded(segment, 0.5, 6, light_yellow);
     }
   }
 
   void Update() {
     for (auto i = 0; i < (int)panelBody.size(); i++) {
       Vector2 Paneldirection;
-      cout << panelDirectionY << endl;
+      // cout << panelDirectionY << endl;
 
       if (panelBody[5].y == 2) {
         if (panelDirectionY == 1) {
@@ -191,7 +154,6 @@ public:
       } else {
         Vector2 Paneldirection = {0, (float)panelDirectionY};
         panelBody[i] = Substract(panelBody[i], Paneldirection);
-        // cout<<panelBody[0].x << " " << panelBody[0].y<<endl;
       }
     }
   }
@@ -220,18 +182,20 @@ public:
   }
 
   void Update() {
-    // cout << ball.GiveDirection().x << " " << ball.GiveDirection().y << endl;
     ball.Update();
     panel.Update();
     CheckCollisionWithEdgeLeft();
     CheckCollisionWithEdgeRight();
     CheckCollisionWithEdgeUp();
     CheckCollisionWithEdgeDown();
+    CheckCollisionWithPanel();
   }
 
   int PanelGetDirection() { return panel.GiveDirection(); }
 
   void PanelChangeDirection(int dir) { panel.ChangeDirection(dir); }
+
+  deque<Vector2> GetBallCords() { return ball.BodyCords(); }
 
   void CheckCollisionWithEdgeLeft() {
 
@@ -244,12 +208,6 @@ public:
         Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x), -1};
         ball.ChangeDirection(newDirection);
       }
-
-      // cout<<"Left";
-      // cout << ball.GiveDirection().x << " " <<ball.GiveDirection().y << endl;
-      // ball.ChangeDirection(InvertDirection(ball.GiveDirection()));
-      // cout <<InvertDirection(ball.GiveDirection()).x << " " <<
-      // InvertDirection(ball.GiveDirection()).y <<endl;
     }
   }
 
@@ -257,18 +215,7 @@ public:
 
     if (ball.BodyCords()[1].x == cellCount + 2) {
 
-      if (ball.GiveDirection().y == 1) {
-        Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x), 1};
-        ball.ChangeDirection(newDirection);
-      } else {
-        Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x), -1};
-        ball.ChangeDirection(newDirection);
-      }
-
-      // cout << ball.GiveDirection().x << " " <<ball.GiveDirection().y << endl;
-      // ball.ChangeDirection(InvertDirection(ball.GiveDirection()));
-      // cout <<InvertDirection(ball.GiveDirection()).x << " " <<
-      // InvertDirection(ball.GiveDirection()).y <<endl;
+      ball.Reset();
     }
   }
 
@@ -283,9 +230,6 @@ public:
         Vector2 newDirection = {-1, (float)InvertY(ball.GiveDirection().y)};
         ball.ChangeDirection(newDirection);
       }
-      // ball.ChangeDirection(InvertDirection(ball.GiveDirection()));
-      // cout <<InvertDirection(ball.GiveDirection()).x << " " <<
-      // InvertDirection(ball.GiveDirection()).y <<endl;
     }
   }
 
@@ -300,11 +244,35 @@ public:
         Vector2 newDirection = {-1, (float)InvertY(ball.GiveDirection().y)};
         ball.ChangeDirection(newDirection);
       }
+    }
+  }
 
-      // cout << ball.GiveDirection().x << " " <<ball.GiveDirection().y << endl;
-      // ball.ChangeDirection(InvertDirection(ball.GiveDirection()));
-      // cout <<InvertDirection(ball.GiveDirection()).x << " " <<
-      // InvertDirection(ball.GiveDirection()).y <<endl;
+  void CheckCollisionWithPanel() {
+    for (auto i = 0; i < (int)panel.BodyCords().size(); i++) {
+      if (ball.BodyCords()[1].x == panel.BodyCords()[i].x &&
+          ball.BodyCords()[1].y == panel.BodyCords()[i].y) {
+
+        if (panel.GiveDirection() == 1) {
+          Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x), 1};
+          ball.ChangeDirection(newDirection);
+        } else if (panel.GiveDirection() == -1) {
+          Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x), -1};
+          ball.ChangeDirection(newDirection);
+        } else {
+          if (ball.GiveDirection().y == 1) {
+            Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x), 1};
+            ball.ChangeDirection(newDirection);
+          } else {
+            Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x), -1};
+            ball.ChangeDirection(newDirection);
+          }
+
+          // cout << ball.GiveDirection().x << " " <<ball.GiveDirection().y <<
+          // endl; ball.ChangeDirection(InvertDirection(ball.GiveDirection()));
+          // cout <<InvertDirection(ball.GiveDirection()).x << " " <<
+          // InvertDirection(ball.GiveDirection()).y <<endl;
+        }
+      }
     }
   }
 };
@@ -319,7 +287,7 @@ int main() {
   while (!WindowShouldClose()) {
     BeginDrawing();
 
-    if (EventTrigger(0.07)) {
+    if (EventTrigger(0.05)) {
       game.Update();
     }
 
@@ -330,7 +298,18 @@ int main() {
       game.PanelChangeDirection(-1);
     }
 
-    ClearBackground(light_green);
+    //ClearBackground(light_green);
+
+
+    ClearBackground(dark_blue);
+        DrawRectangleLinesEx(Rectangle{(float)offset-5, (float)offset-5, (float)cellSize*cellCount+10, (float)cellSize*cellCount+10}, 3, light_yellow);
+        DrawText("Pong", offset - 5 , 20, 40, light_yellow);
+        //DrawText(TextFormat("%i", game.score), offset -5, offset + cellSize*cellCount+10, 40, light_yellow);
+        //DrawTexture(textureExample, offset + 100, offset + cellSize*cellCount+15, WHITE);
+        //DrawText(" - food", offset + 130 , offset + cellSize*cellCount+15, 30, light_yellow);
+        //DrawRectangle(offset + 320, offset + cellSize*cellCount+15, cellSize, cellSize, light_yellow);
+        //DrawText(" - bonus food", offset + 350 , offset + cellSize*cellCount+15, 30, light_yellow);
+
 
     game.Draw();
 
