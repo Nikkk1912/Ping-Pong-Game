@@ -3,3 +3,4 @@ BraceWrapping:
   AfterEnum: false
   AfterStruct: false
   SplitEmptyFunction: false
+ColumnLimit: 0

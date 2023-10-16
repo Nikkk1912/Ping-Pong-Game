@@ -101,9 +101,7 @@ public:
 class Panel {
 private:
   deque<Vector2> panelBody = {
-      {(float)(cellCount + 1), 13}, {(float)(cellCount + 1), 14},
-      {(float)(cellCount + 1), 15}, {(float)(cellCount + 1), 16},
-      {(float)(cellCount + 1), 17}, {(float)(cellCount + 1), 18}};
+      {(float)(cellCount - 1), 13}, {(float)(cellCount - 1), 14}, {(float)(cellCount - 1), 15}, {(float)(cellCount - 1), 16}, {(float)(cellCount - 1), 17}, {(float)(cellCount - 1), 18}};
 
   //
   // {cellCount, 13}
@@ -133,7 +131,7 @@ public:
       Vector2 Paneldirection;
       // cout << panelDirectionY << endl;
 
-      if (panelBody[5].y == 2) {
+      if (panelBody[5].y == 5) {
         if (panelDirectionY == 1) {
           Paneldirection = {0, 0};
         } else {
@@ -142,7 +140,7 @@ public:
 
         panelBody[i] = Substract(panelBody[i], Paneldirection);
 
-      } else if (panelBody[5].y == cellCount + 2) {
+      } else if (panelBody[5].y == cellCount) {
         if (panelDirectionY == -1) {
           Paneldirection = {0, 0};
         } else {
@@ -174,6 +172,7 @@ class Game {
 private:
   Ball ball = Ball();
   Panel panel = Panel();
+  int loosePoints = 0;
 
 public:
   void Draw() {
@@ -197,9 +196,11 @@ public:
 
   deque<Vector2> GetBallCords() { return ball.BodyCords(); }
 
+  int GiveLoosePoints() { return loosePoints; }
+
   void CheckCollisionWithEdgeLeft() {
 
-    if (ball.BodyCords()[0].x == -3) {
+    if (ball.BodyCords()[0].x == 0) {
 
       if (ball.GiveDirection().y == 1) {
         Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x), 1};
@@ -216,12 +217,13 @@ public:
     if (ball.BodyCords()[1].x == cellCount + 2) {
 
       ball.Reset();
+      loosePoints++;
     }
   }
 
   void CheckCollisionWithEdgeUp() {
 
-    if (ball.BodyCords()[0].y == -3 && ball.BodyCords()[0].x != -3 &&
+    if (ball.BodyCords()[0].y == 0 && ball.BodyCords()[0].x != -3 &&
         ball.BodyCords()[1].x != cellCount + 2) {
       if (ball.GiveDirection().x == 1) {
         Vector2 newDirection = {1, (float)InvertY(ball.GiveDirection().y)};
@@ -235,8 +237,8 @@ public:
 
   void CheckCollisionWithEdgeDown() {
 
-    if (ball.BodyCords()[3].y == cellCount + 2 && ball.BodyCords()[0].x != -3 &&
-        ball.BodyCords()[1].x != cellCount + 2) {
+    if (ball.BodyCords()[3].y == cellCount && ball.BodyCords()[0].x != -3 &&
+        ball.BodyCords()[1].x != cellCount) {
       if (ball.GiveDirection().x == 1) {
         Vector2 newDirection = {1, (float)InvertY(ball.GiveDirection().y)};
         ball.ChangeDirection(newDirection);
@@ -278,6 +280,8 @@ public:
 };
 
 int main() {
+
+  // SetConfigFlags(FLAG_WINDOW_RESIZABLE);
   InitWindow(2 * offset + cellSize * cellCount,
              2 * offset + cellSize * cellCount, "Pong");
   SetTargetFPS(60);
@@ -298,18 +302,18 @@ int main() {
       game.PanelChangeDirection(-1);
     }
 
-    //ClearBackground(light_green);
-
+    // ClearBackground(light_green);
 
     ClearBackground(dark_blue);
-        DrawRectangleLinesEx(Rectangle{(float)offset-5, (float)offset-5, (float)cellSize*cellCount+10, (float)cellSize*cellCount+10}, 3, light_yellow);
-        DrawText("Pong", offset - 5 , 20, 40, light_yellow);
-        //DrawText(TextFormat("%i", game.score), offset -5, offset + cellSize*cellCount+10, 40, light_yellow);
-        //DrawTexture(textureExample, offset + 100, offset + cellSize*cellCount+15, WHITE);
-        //DrawText(" - food", offset + 130 , offset + cellSize*cellCount+15, 30, light_yellow);
-        //DrawRectangle(offset + 320, offset + cellSize*cellCount+15, cellSize, cellSize, light_yellow);
-        //DrawText(" - bonus food", offset + 350 , offset + cellSize*cellCount+15, 30, light_yellow);
-
+    DrawRectangleLinesEx(Rectangle{(float)offset - 5, (float)offset - 5, (float)cellSize * cellCount + 29, (float)cellSize * cellCount + 29}, 3, light_yellow);
+    DrawText("Pong", offset - 5, 20, 40, light_yellow);
+    DrawText(TextFormat("%i", game.GiveLoosePoints()), offset - 5, offset + cellSize * cellCount + 29, 40, light_yellow);
+    // DrawTexture(textureExample,
+    //  offset + 100, offset + cellSize*cellCount+15, WHITE);
+    // DrawText(" - food", offset + 130 , offset + cellSize*cellCount+15, 30, light_yellow);
+    //  DrawRectangle(offset + 320, offset + cellSize*cellCount+15, cellSize,
+    //  cellSize, light_yellow); DrawText(" - bonus food", offset + 350 , offset
+    //  + cellSize*cellCount+15, 30, light_yellow);
 
     game.Draw();
 
