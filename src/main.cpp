@@ -7,11 +7,10 @@ using namespace std;
 
 Color dark_blue = {31, 29, 52, 255};
 Color light_yellow = {248, 232, 199, 255};
-Color light_green = {160, 212, 171, 255};
 
 float cellSize = 25;
-Rectangle screen;
-Rectangle playArea;
+Rectangle screen = {0, 0, (float)(GetScreenWidth()), (float)(GetScreenHeight())};
+Rectangle playArea = {cellSize * 3, cellSize * 3, screen.width - (6 * cellSize), screen.height - (6 * cellSize)};
 
 double lastUpdateTime = 0;
 /*
@@ -58,48 +57,40 @@ int InvertY(int currentY) {
   }
   return newY;
 }
-
+*/
 class Ball {
 private:
-  deque<Vector2> body = {Vector2{15, 15}, Vector2{16, 15}, Vector2{15, 16},
-                         Vector2{16, 16}};
-  //
-  //  {15,15} {16,15}
-  //  {15,16} {16,16}
-  //
-  Vector2 direction = {1, 0};
+  Rectangle body;
+  Vector2 direction;
 
 public:
-  void Draw() {
-
-  }
-
-  void Update() {
-    for (auto i = 0; i < (int)body.size(); i++) {
-      body[i] = Substract(body[i], direction);
-    }
-  }
-
-  void Reset() {
-    body = {Vector2{15, 15}, Vector2{16, 15}, Vector2{15, 16}, Vector2{16, 16}};
+  Ball(Rectangle &playArea) {
+    body = {playArea.width / 2, playArea.height / 2, cellSize * 2, cellSize * 2};
     direction = {1, 0};
   }
 
-  deque<Vector2> BodyCords() { return body; }
+  void Draw() {
+    DrawRectangleRounded(body, 5, 1, light_yellow);
+    cout << body.x << " " << body.y << endl;
+  }
+
+  void Update() {
+  }
+
+  void Reset() {
+  }
 
   Vector2 GiveDirection() { return direction; }
 
   void ChangeDirection(Vector2 newDirection) { direction = newDirection; }
 };
-
+/*
 class Panel {
 private:
-
   Rectangle panelBody = {0, 0, (float)cellCount, (float)(cellCount * 6)};
   int panelDirectionY = 0;
 
 public:
-
   void Draw() {
     DrawRectangleRounded(panelBody, 0.5, 1, light_yellow);
   }
@@ -107,14 +98,13 @@ public:
   void Update() {
     cout << panelDirectionY << endl;
 
-    if(panelDirectionY == 1 && panelBody.y >= lowBorder) {
+    if (panelDirectionY == 1 && panelBody.y >= lowBorder) {
       return;
     }
-    if(panelDirectionY == -1 && panelBody.y <= topBorder) {
+    if (panelDirectionY == -1 && panelBody.y <= topBorder) {
       return;
     }
-    panelBody.y += (panelDirectionY*20);
-
+    panelBody.y += (panelDirectionY * 20);
   }
 
   void Reset() {
@@ -131,153 +121,80 @@ public:
   int GiveDirection() { return panelDirectionY; }
 
   void ChangeDirection(int newDirection) { panelDirectionY = newDirection; }
-
 };
-
+*/
 class Game {
 private:
-  Ball ball = Ball();
-  Panel panel = Panel();
+  Ball ball = Ball(playArea);
+  Rectangle playArea;
   int loosePoints = 0;
 
 public:
+  Game(Rectangle playAre) {
+    playArea = playAre;
+  }
   void Draw() {
     ball.Draw();
-    panel.Draw();
   }
 
   void Update() {
     ball.Update();
-    panel.Update();
+
     CheckCollisionWithEdgeLeft();
     CheckCollisionWithEdgeRight();
     CheckCollisionWithEdgeUp();
     CheckCollisionWithEdgeDown();
-    // CheckCollisionWithPanel();
+    CheckCollisionWithPanel();
   }
-
-  // int PanelGetDirection() { return panel.GiveDirection(); }
-
-  void PanelChangeDirection(int dir) { panel.ChangeDirection(dir); }
-
-  deque<Vector2> GetBallCords() { return ball.BodyCords(); }
 
   int GiveLoosePoints() { return loosePoints; }
 
   void CheckCollisionWithEdgeLeft() {
-
-    if (ball.BodyCords()[0].x == 0) {
-
-      if (ball.GiveDirection().y == 1) {
-        Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x), 1};
-        ball.ChangeDirection(newDirection);
-      } else {
-        Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x), -1};
-        ball.ChangeDirection(newDirection);
-      }
-    }
   }
 
   void CheckCollisionWithEdgeRight() {
-
-    if (ball.BodyCords()[1].x == cellCount + 2) {
-
-      ball.Reset();
-      loosePoints++;
-    }
   }
 
   void CheckCollisionWithEdgeUp() {
-
-    if (ball.BodyCords()[0].y == 0 && ball.BodyCords()[0].x != -3 &&
-        ball.BodyCords()[1].x != cellCount + 2) {
-      if (ball.GiveDirection().x == 1) {
-        Vector2 newDirection = {1, (float)InvertY(ball.GiveDirection().y)};
-        ball.ChangeDirection(newDirection);
-      } else {
-        Vector2 newDirection = {-1, (float)InvertY(ball.GiveDirection().y)};
-        ball.ChangeDirection(newDirection);
-      }
-    }
   }
 
   void CheckCollisionWithEdgeDown() {
-
-    if (ball.BodyCords()[3].y == cellCount && ball.BodyCords()[0].x != -3 &&
-        ball.BodyCords()[1].x != cellCount) {
-      if (ball.GiveDirection().x == 1) {
-        Vector2 newDirection = {1, (float)InvertY(ball.GiveDirection().y)};
-        ball.ChangeDirection(newDirection);
-      } else {
-        Vector2 newDirection = {-1, (float)InvertY(ball.GiveDirection().y)};
-        ball.ChangeDirection(newDirection);
-      }
-    }
   }
 
   void CheckCollisionWithPanel() {
-    for (auto i = 0; i < (int)panel.BodyCords().size(); i++) {
-      if (ball.BodyCords()[1].x == panel.BodyCords()[i].x &&
-          ball.BodyCords()[1].y == panel.BodyCords()[i].y) {
-
-        if (panel.GiveDirection() == 1) {
-          Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x), 1};
-          ball.ChangeDirection(newDirection);
-        } else if (panel.GiveDirection() == -1) {
-          Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x), -1};
-          ball.ChangeDirection(newDirection);
-        } else {
-          if (ball.GiveDirection().y == 1) {
-            Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x), 1};
-            ball.ChangeDirection(newDirection);
-          } else {
-            Vector2 newDirection = {(float)InvertX(ball.GiveDirection().x), -1};
-            ball.ChangeDirection(newDirection);
-          }
-
-          // cout << ball.GiveDirection().x << " " <<ball.GiveDirection().y <<
-          // endl; ball.ChangeDirection(InvertDirection(ball.GiveDirection()));
-          // cout <<InvertDirection(ball.GiveDirection()).x << " " <<
-          // InvertDirection(ball.GiveDirection()).y <<endl;
-        }
-      }
-    }
   }
 };
 
-*/
+Rectangle GetScreenInfo(Rectangle screen) {
+  return screen;
+}
+
+Rectangle GetPlayAreanInfo(Rectangle playArea) {
+  return playArea;
+}
+
 int main() {
 
- 
   SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-  InitWindow(1000, 1000, "Pong");
+  InitWindow(1200, 1200, "Pong");
   SetTargetFPS(60);
 
-  screen = {0, 0, (float)(GetScreenWidth() ), (float)(GetScreenHeight())};
-  playArea = {cellSize, cellSize, screen.width - (2 * cellSize), screen.height - (2 * cellSize)};
-  SetWindowSize(screen.height, screen.height);
-
-
-  // Game game = Game();
+  Game game = Game(playArea);
 
   while (!WindowShouldClose()) {
     BeginDrawing();
-    /*
-    if (EventTrigger(0.05)) {
-      game.Update();
-    }
 
-    if (IsKeyPressed(KEY_W)) {
-      game.PanelChangeDirection(-1);
-    }
-    if (IsKeyPressed(KEY_S)) {
-      game.PanelChangeDirection(1);
-    }
+    screen = {0, 0, (float)(GetScreenWidth()), (float)(GetScreenHeight())};
+    playArea = {cellSize * 3, cellSize * 3, screen.width - (6 * cellSize), screen.height - (6 * cellSize)};
+    SetWindowSize(screen.height, screen.height);
 
-    */
+    game.Draw();
 
     ClearBackground(dark_blue);
-    
+    DrawRectangleLinesEx(playArea, 5, light_yellow);
+    DrawText("Pong", cellSize * 3, cellSize / 2, cellSize * 2, light_yellow);
+    DrawText(TextFormat("%i", game.GiveLoosePoints()), cellSize * 3, playArea.height + cellSize * 3 + cellSize / 2, cellSize * 2, light_yellow);
+    DrawText("- ball missed", cellSize * 5, playArea.height + cellSize * 3 + cellSize / 2, cellSize * 2, light_yellow);
 
     EndDrawing();
   }
