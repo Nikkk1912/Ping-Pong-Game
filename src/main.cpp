@@ -8,10 +8,6 @@ using namespace std;
 Color dark_blue = {31, 29, 52, 255};
 Color light_yellow = {248, 232, 199, 255};
 
-float cellSize = 25;
-Rectangle screen = {0, 0, (float)(GetScreenWidth()), (float)(GetScreenHeight())};
-Rectangle playArea = {cellSize * 3, cellSize * 3, screen.width - (6 * cellSize), screen.height - (6 * cellSize)};
-
 double lastUpdateTime = 0;
 /*
 bool EventTrigger(double interval) {
@@ -60,24 +56,42 @@ int InvertY(int currentY) {
 */
 class Ball {
 private:
-  Rectangle body;
-  Vector2 direction;
+  Vector2 direction = {-1, 0};
+  float speedChange = 10;
+  float cellSize = 25;
+  Rectangle playArea = {cellSize * 3, cellSize * 3, GetScreenWidth() - (6 * cellSize), GetScreenHeight() - (6 * cellSize)};
+  Rectangle body = {playArea.width / 2, playArea.height / 2, cellSize * 2, cellSize * 2};
+  float screen = 1200;
 
 public:
-  Ball(Rectangle &playArea) {
-    body = {playArea.width / 2, playArea.height / 2, cellSize * 2, cellSize * 2};
-    direction = {1, 0};
-  }
-
   void Draw() {
     DrawRectangleRounded(body, 5, 1, light_yellow);
-    cout << body.x << " " << body.y << endl;
+    // cout << body.x << " " << body.y << endl;
   }
 
-  void Update() {
+  void Update(float &newcellSize) {
+
+    if (cellSize != GetScreenWidth() / (1200 / 25)) {
+      cellSize = GetScreenWidth() / (1200 / 25);
+      float scale = (float)GetScreenWidth() / screen;
+      screen = (float)GetScreenWidth();
+      // cout <<screen << endl;
+      // cout << scale << endl;
+      body.x = body.x * scale;
+      body.y = body.y * scale;
+      speedChange = 10.0 * scale;
+      body.width = cellSize * 2;
+      body.height = cellSize * 2;
+      playArea = {cellSize * 3, cellSize * 3, GetScreenWidth() - (6 * cellSize), GetScreenHeight() - (6 * cellSize)};
+    }
+
+    body.x += direction.x * speedChange;
+    body.y += direction.y * speedChange;
   }
 
   void Reset() {
+    body = {playArea.width / 2, playArea.height / 2, cellSize * 2, cellSize * 2};
+    direction = {-1, 0};
   }
 
   Vector2 GiveDirection() { return direction; }
@@ -125,20 +139,24 @@ public:
 */
 class Game {
 private:
-  Ball ball = Ball(playArea);
+  Ball ball = Ball();
   Rectangle playArea;
   int loosePoints = 0;
+  float cellSize;
 
 public:
-  Game(Rectangle playAre) {
+  Game(Rectangle playAre, float cellSize) {
     playArea = playAre;
+    cellSize = cellSize;
   }
   void Draw() {
     ball.Draw();
   }
 
-  void Update() {
-    ball.Update();
+  void Update(float &newcellSize) {
+    cellSize = newcellSize;
+    // cout << cellSize << " ";
+    ball.Update(cellSize);
 
     CheckCollisionWithEdgeLeft();
     CheckCollisionWithEdgeRight();
@@ -173,25 +191,41 @@ Rectangle GetPlayAreanInfo(Rectangle playArea) {
   return playArea;
 }
 
+void WindowCheckAndUpdate(Rectangle &screen, Rectangle &playArea, float &cellSize) {
+  if (screen.width != (float)GetScreenWidth()) {
+    screen = {0, 0, (float)(GetScreenWidth()), (float)(GetScreenHeight())};
+    playArea = {cellSize * 3, cellSize * 3, screen.width - (6 * cellSize), screen.height - (6 * cellSize)};
+    SetWindowSize(screen.height, screen.height);
+    cellSize = GetScreenWidth() / (1200 / 25);
+  } else {
+    return;
+  }
+}
+
 int main() {
 
   SetConfigFlags(FLAG_WINDOW_RESIZABLE);
   InitWindow(1200, 1200, "Pong");
   SetTargetFPS(60);
 
-  Game game = Game(playArea);
+  float cellSize = 25;
+  Rectangle screen = {0, 0, (float)(GetScreenWidth()), (float)(GetScreenHeight())};
+  Rectangle playArea = {cellSize * 3, cellSize * 3, screen.width - (6 * cellSize), screen.height - (6 * cellSize)};
+  SetWindowSize(screen.height, screen.height);
+
+  Game game = Game(playArea, cellSize);
 
   while (!WindowShouldClose()) {
     BeginDrawing();
 
-    screen = {0, 0, (float)(GetScreenWidth()), (float)(GetScreenHeight())};
-    playArea = {cellSize * 3, cellSize * 3, screen.width - (6 * cellSize), screen.height - (6 * cellSize)};
-    SetWindowSize(screen.height, screen.height);
+    WindowCheckAndUpdate(screen, playArea, cellSize);
+    // cout << cellSize<<endl;
 
+    game.Update(cellSize);
     game.Draw();
 
     ClearBackground(dark_blue);
-    DrawRectangleLinesEx(playArea, 5, light_yellow);
+    DrawRectangleLinesEx(playArea, cellSize / 5, light_yellow);
     DrawText("Pong", cellSize * 3, cellSize / 2, cellSize * 2, light_yellow);
     DrawText(TextFormat("%i", game.GiveLoosePoints()), cellSize * 3, playArea.height + cellSize * 3 + cellSize / 2, cellSize * 2, light_yellow);
     DrawText("- ball missed", cellSize * 5, playArea.height + cellSize * 3 + cellSize / 2, cellSize * 2, light_yellow);
