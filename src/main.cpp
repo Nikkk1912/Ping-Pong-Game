@@ -56,11 +56,11 @@ int InvertY(int currentY) {
 */
 class Ball {
 private:
-  Vector2 direction = {-1, 0};
+  Vector2 direction = {0, 0};
   float speedChange = 10;
   float cellSize = 25;
   Rectangle playArea = {cellSize * 3, cellSize * 3, GetScreenWidth() - (6 * cellSize), GetScreenHeight() - (6 * cellSize)};
-  Rectangle body = {playArea.width / 2, playArea.height / 2, cellSize * 2, cellSize * 2};
+  Rectangle body = {playArea.width / 2, playArea.height / 2 + cellSize * 2, cellSize * 2, cellSize * 2};
   float screen = 1200;
 
 public:
@@ -69,7 +69,7 @@ public:
     // cout << body.x << " " << body.y << endl;
   }
 
-  void Update(float &newcellSize) {
+  void Update() {
 
     if (cellSize != GetScreenWidth() / (1200 / 25)) {
       cellSize = GetScreenWidth() / (1200 / 25);
@@ -98,11 +98,16 @@ public:
 
   void ChangeDirection(Vector2 newDirection) { direction = newDirection; }
 };
-/*
+
 class Panel {
 private:
-  Rectangle panelBody = {0, 0, (float)cellCount, (float)(cellCount * 6)};
+  float speedChange = 10;
+  float cellSize = 25;
+  float screen = 1200;
+  Rectangle playAreaPanel = {cellSize * 3, cellSize * 3, GetScreenWidth() - (6 * cellSize), GetScreenHeight() - (6 * cellSize)};
+  Rectangle panelBody = {playAreaPanel.width - cellSize / 2.0, playAreaPanel.height / 2.0 - cellSize * 2.0, (float)(cellSize * 2), (float)(cellSize * 10.0)};
   int panelDirectionY = 0;
+  bool panelMove;
 
 public:
   void Draw() {
@@ -110,36 +115,42 @@ public:
   }
 
   void Update() {
-    cout << panelDirectionY << endl;
 
-    if (panelDirectionY == 1 && panelBody.y >= lowBorder) {
-      return;
+    if (cellSize != GetScreenWidth() / (1200 / 25)) {
+      cellSize = GetScreenWidth() / (1200 / 25);
+      float scale = (float)GetScreenWidth() / screen;
+      screen = (float)GetScreenWidth();
+      // cout <<screen << endl;
+      // cout << scale << endl;
+      panelBody.x = panelBody.x * scale;
+      panelBody.y = panelBody.y * scale;
+      speedChange = 10.0 * scale;
+      panelBody.width = (float)cellSize * 2;
+      panelBody.height = (float)cellSize * 10;
+      playAreaPanel = {cellSize * 3, cellSize * 3, GetScreenWidth() - (6 * cellSize), GetScreenHeight() - (6 * cellSize)};
     }
-    if (panelDirectionY == -1 && panelBody.y <= topBorder) {
-      return;
+    if (panelMove) {
+      panelBody.y += panelDirectionY * speedChange;
     }
-    panelBody.y += (panelDirectionY * 20);
+    panelMove = false;
   }
 
   void Reset() {
-    panelBody = {(float)(cellCount * (cellSize + 1)), (float)(cellCount / 2 * cellSize), (float)cellCount, (float)(cellCount * 6)};
   }
 
   Vector2 BodyCords() {
-    Vector2 cords;
-    cords.x = panelBody.x;
-    cords.y = panelBody.y;
-    return cords;
   }
 
   int GiveDirection() { return panelDirectionY; }
 
   void ChangeDirection(int newDirection) { panelDirectionY = newDirection; }
+  void IfpanelMove(bool move) { panelMove = move; }
 };
-*/
+
 class Game {
 private:
   Ball ball = Ball();
+  Panel panel = Panel();
   Rectangle playArea;
   int loosePoints = 0;
   float cellSize;
@@ -151,12 +162,13 @@ public:
   }
   void Draw() {
     ball.Draw();
+    panel.Draw();
   }
 
   void Update(float &newcellSize) {
     cellSize = newcellSize;
-    // cout << cellSize << " ";
-    ball.Update(cellSize);
+    ball.Update();
+    panel.Update();
 
     CheckCollisionWithEdgeLeft();
     CheckCollisionWithEdgeRight();
@@ -181,6 +193,8 @@ public:
 
   void CheckCollisionWithPanel() {
   }
+  void PanelChangeDirection(int direction) { panel.ChangeDirection(direction); }
+  void PanelCheckMovement(bool move) {panel.IfpanelMove(move); }
 };
 
 Rectangle GetScreenInfo(Rectangle screen) {
@@ -218,6 +232,15 @@ int main() {
   while (!WindowShouldClose()) {
     BeginDrawing();
 
+    if (IsKeyPressed(KEY_W)) {
+      game.PanelCheckMovement(true);
+      game.PanelChangeDirection(-1);
+    }
+    if (IsKeyPressed(KEY_S)) {
+      game.PanelCheckMovement(true);
+      game.PanelChangeDirection(1);
+    }
+
     WindowCheckAndUpdate(screen, playArea, cellSize);
     // cout << cellSize<<endl;
 
@@ -225,6 +248,7 @@ int main() {
     game.Draw();
 
     ClearBackground(dark_blue);
+    DrawLine(0, screen.height / 2, screen.width, screen.height / 2, light_yellow);
     DrawRectangleLinesEx(playArea, cellSize / 5, light_yellow);
     DrawText("Pong", cellSize * 3, cellSize / 2, cellSize * 2, light_yellow);
     DrawText(TextFormat("%i", game.GiveLoosePoints()), cellSize * 3, playArea.height + cellSize * 3 + cellSize / 2, cellSize * 2, light_yellow);
