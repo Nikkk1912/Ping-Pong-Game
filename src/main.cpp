@@ -105,16 +105,21 @@ class Panel {
   friend class Game;
 
 private:
-  float speedChange = 15;
+  float speedChange = 12;
   float cellSize = 25;
   float screen = 1200;
   Rectangle playAreaPanel = {cellSize * 3, cellSize * 3, GetScreenWidth() - (6 * cellSize), GetScreenHeight() - (6 * cellSize)};
-  Rectangle panelBody = {playAreaPanel.width - cellSize / 2.0f, playAreaPanel.height / 2.0f - cellSize * 2.0f, (float)(cellSize * 2), (float)(cellSize * 10.0)};
+  Rectangle panelBody = {playAreaPanel.width - cellSize / 2.0f, playAreaPanel.height / 2.0f - cellSize * 2.0f,(cellSize * 2), (cellSize * 10.0)};
   int panelDirectionY = 0;
+  //Rectangle topPanel = {panelBody.x + cellSize/10, panelBody.y - cellSize/2, cellSize * 4, cellSize/2};
+  //Rectangle bottomPanel = {panelBody.x + cellSize/10, panelBody.y + panelBody.height , cellSize * 4, cellSize/2};
+
 
 public:
   void Draw() {
     DrawRectangleRounded(panelBody, 0.5, 1, light_yellow);
+    //DrawRectangleRounded(topPanel, 1, 1, RED);
+    //DrawRectangleRounded(bottomPanel, 1, 1, BLUE);
   }
 
   void Update() {
@@ -127,10 +132,12 @@ public:
       // cout << scale << endl;
       panelBody.x = panelBody.x * scale;
       panelBody.y = panelBody.y * scale;
-      speedChange = 10.0 * scale;
+      speedChange = (float)GetScreenWidth() / (1200.0f / 10.0f);
       panelBody.width = (float)cellSize * 2;
       panelBody.height = (float)cellSize * 10;
       playAreaPanel = {cellSize * 3, cellSize * 3, GetScreenWidth() - (6 * cellSize), GetScreenHeight() - (6 * cellSize)};
+      //topPanel = {panelBody.x + cellSize/10, panelBody.y - cellSize/2, cellSize * 4, cellSize/2};
+      //bottomPanel = {panelBody.x + cellSize/10, panelBody.y + panelBody.height , cellSize * 4, cellSize/2};
     }
   }
 
@@ -151,7 +158,6 @@ private:
   Rectangle bottomBorder = {cellSize * 3, playArea.height + cellSize * 3 - cellSize / 5, playArea.width, cellSize / 5};
   Rectangle leftBorder = {cellSize * 3, cellSize * 3, cellSize / 5, playArea.height};
   Rectangle rightBorder = {playArea.width + cellSize * 3, cellSize * 3, cellSize / 5, playArea.height};
-  Rectangle biggerPanel = {playArea.width - cellSize / 2.0f, playArea.height / 2.0f - cellSize * 2.0f, (float)(cellSize * 3), (float)(cellSize * 12)};
 
 public:
   void Draw() {
@@ -162,7 +168,7 @@ public:
     // DrawRectangleLinesEx(playArea, cellSize/5, WHITE);
     ball.Draw();
     panel.Draw();
-    DrawRectangleRounded(biggerPanel, 1, 1, WHITE);
+    
   }
 
   void UpdateValues(float newcellSize) {
@@ -175,7 +181,7 @@ public:
       leftBorder = {cellSize * 3, cellSize * 3, cellSize / 5, playArea.height + cellSize * 3};
       leftBorder = {cellSize * 3, cellSize * 3, cellSize / 5, playArea.height};
       rightBorder = {playArea.width + cellSize * 3, cellSize * 3, cellSize / 5, playArea.height};
-      biggerPanel = {playArea.width - cellSize / 2.0f, playArea.height / 2.0f - cellSize * 2.0f, (float)(cellSize * 3), (float)(cellSize * 12)};
+      //biggerPanel = {playArea.width - cellSize / 2.0f, playArea.height / 2.0f - cellSize * 2.0f, (float)(cellSize * 3), (float)(cellSize * 12)};
     }
   }
 
@@ -226,7 +232,7 @@ public:
   }
 
   void CheckCollisionWithPanel() {
-    if (CheckCollisionRecs(ball.body, biggerPanel)) {
+    if (CheckCollisionRecs(ball.body, panel.panelBody)) {
       cout <<"collision" << endl;
       ball.direction.x = InvertX(ball.direction.x);
       if (panel.panelDirectionY == 1) {
@@ -235,17 +241,29 @@ public:
         ball.direction.y = 1;
       } 
     }
+    /*
+    if(CheckCollisionRecs(ball.body, panel.topPanel)){
+      ball.direction.x = InvertX(ball.direction.x);
+      ball.direction.y = InvertY(ball.direction.y);
+    }
+    if(CheckCollisionRecs(ball.body, panel.bottomPanel)){
+      ball.direction.x = InvertX(ball.direction.x);
+      ball.direction.y = InvertY(ball.direction.y);
+    }
+    */
   }
   void PanelChangeDirection(int direction) {
     if (direction == -1 && panel.panelBody.y > topBorder.y + (cellSize / 5) * 2) {
       panel.panelBody.y += direction * panel.speedChange;
-      biggerPanel.y += direction * panel.speedChange;
+      //panel.topPanel.y += direction * panel.speedChange;
+      //panel.bottomPanel.y += direction * panel.speedChange;
       panel.panelDirectionY = 1;
     }
 
     else if (direction == 1 && panel.panelBody.y + (cellSize * 10) < bottomBorder.y - cellSize / 5) {
       panel.panelBody.y += direction * panel.speedChange;
-      biggerPanel.y += direction * panel.speedChange;
+      //panel.topPanel.y += direction * panel.speedChange;
+      //panel.bottomPanel.y += direction * panel.speedChange;
       panel.panelDirectionY = -1;
     }
   }
